@@ -71,13 +71,14 @@
 						{@const Icon = tab.icon}
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<div
+						<button
+
 							class="tab {activeTab === tab.id ? 'active' : ''}"
 							onclick={() => handleTabClick(tab.id)}
 						>
 							<Icon class="icon" />&nbsp;&nbsp;
 							<span class="tab-name">{tab.name}</span>
-						</div>
+						</button>
 					{/each}
 				</nav>
 
@@ -162,17 +163,21 @@
 		margin-bottom: 1.2rem;
 		border-radius: 12px;
 		cursor: pointer;
+        background-color: qhite;
+        border: none;
+        width: 100%;
 		transition: all 0.2s ease;
 		color: var(--text);
 	}
 
 	.tab:hover {
-		background-color: var(--secondary);
+		background-color: var(--purple);
 	}
 
 	.tab.active {
 		background-color: var(--purple);
 		color: white;
+        border: none;
 	}
 
 	.tab-name {
