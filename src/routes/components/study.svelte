@@ -107,15 +107,15 @@
 
 <main>
 	<div class="container">
-		<h1 class="page-title">Study Session Tracker</h1>
-		<p class="subtitle">Track your study time and progress effectively</p>
+		<h1 class="page-title" style="color: teal;">Study Session Tracker</h1>
+		<p class="sub-title">Track your study time and progress effectively</p>
 
 		<div class="row">
 			<!-- Left Column: Timer and Session Form -->
 			<div class="col-left">
 				<div class="card timer-card">
 					<div class="timer-display">
-						<Clock size={28} class="timer-icon" />
+						<Clock size={42} color="teal"  />
 						<span class="time">{formatTime(timerSeconds)}</span>
 					</div>
 
@@ -140,7 +140,7 @@
 				</div>
 
 				<div class="card session-form">
-					<h2 class="form-title">
+					<h2 style="color: var(--green);">
 						<BookOpen size={20} />
 						Session Details
 					</h2>
@@ -183,7 +183,7 @@
 			<!-- Right Column: Recent Sessions -->
 			<div class="col-right">
 				<div class="card recent-sessions">
-					<h2 class="sessions-title">
+					<h2 style="color: var(--green);">
 						<Book size={20} />
 						Recent Study Sessions
 					</h2>
@@ -245,12 +245,7 @@
 		width: 100%;
 	}
 
-	/* Typography */
-	.page-title {
-		color: #6a11cb;
-		margin-bottom: 0.5rem;
-		font-size: 2.5rem;
-	}
+
 
 	.subtitle {
 		color: #666;
@@ -306,9 +301,7 @@
 		gap: 0.8rem;
 	}
 
-	.timer-icon {
-		color: #14b8a6;
-	}
+	
 
 	.time {
 		font-size: 2.5rem;
@@ -338,23 +331,23 @@
 	}
 
 	.btn-primary {
-		background: linear-gradient(135deg, #01f1e5 0%, #04eca7 100%);
+		background: var(--purple);
 		color: white;
 	}
 
 	.btn-primary:hover {
-		background: linear-gradient(135deg, #027559 0%, #00ec7e 100%);
+		background: #9c6de7;
 		transform: translateY(-2px);
 		box-shadow: 0 4px 8px rgba(106, 17, 203, 0.2);
 	}
 
 	.btn-secondary {
-		background: #14b8a6;
+		background: var(--purple);
 		color: white;
 	}
 
 	.btn-secondary:hover {
-		background: #119c8c;
+		background: var(--purple);
 		transform: translateY(-2px);
 		box-shadow: 0 4px 8px rgba(20, 184, 166, 0.2);
 	}
@@ -422,6 +415,7 @@
 	/* Recent sessions */
 	.sessions-title {
 		margin-bottom: 1.5rem;
+		color: black;
 	}
 
 	.session-item {
@@ -442,7 +436,7 @@
 
 	.session-course {
 		font-size: 1.1rem;
-		color: #6a11cb;
+		color: black;
 		font-weight: 600;
 	}
 

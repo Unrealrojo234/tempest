@@ -31,6 +31,9 @@
       checked={value === star}
       {disabled}
     />
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <!-- svelte-ignore a11y_mouse_events_have_key_events -->
     <label
       title={`${star} star${star !== 1 ? 's' : ''}`}
       for={`${name}-star${star}`}
@@ -60,13 +63,13 @@
 
   /* Checked state - purple color */
   .rating:not(.disabled) > input:checked ~ label {
-    color: #6a11cb; /* Purple */
+    color: gold; /* Purple */
   }
 
   /* Hover effects - teal color */
   .rating:not(.disabled) > label:hover,
   .rating:not(.disabled) > label:hover ~ label {
-    color: #14b8a6; /* Teal */
+    color: gold; 
   }
 
   /* Checked + hover state */
@@ -74,7 +77,7 @@
   .rating:not(.disabled) > input:checked + label:hover ~ label,
   .rating:not(.disabled) > input:checked ~ label:hover,
   .rating:not(.disabled) > input:checked ~ label:hover ~ label {
-    color: #0d9488; /* Darker teal */
+    color: gold; 
   }
 
   /* Disabled state */
@@ -93,6 +96,6 @@
   }
 
   .rating.disabled > input:checked ~ label {
-    color: #6a11cb; /* Purple for selected stars even when disabled */
+    color: gold;
   }
 </style>

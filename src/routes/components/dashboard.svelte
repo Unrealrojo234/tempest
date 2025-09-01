@@ -78,21 +78,23 @@
 				type: 'line',
 				data: {
 					labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-					datasets: [{
-						label: 'Hours',
-						data: [6, 8, 7, 9, 5, 4, 3],
-						fill: false,
-						backgroundColor: 'rgba(54, 162, 235, 0.7)',
-						borderColor: 'rgba(54, 162, 235, 1)',
-						borderWidth: 3, // Slightly thicker line for better visibility
-						tension: 0.4, // Increased from 0.1 to 0.4 for smoother curve
-						pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-						pointBorderColor: '#fff',
-						pointRadius: 6, // Slightly larger points
-						pointHoverRadius: 8,
-						pointBorderWidth: 2,
-						cubicInterpolationMode: 'monotone' // Even smoother interpolation
-					}]
+					datasets: [
+						{
+							label: 'Hours',
+							data: [6, 8, 7, 9, 5, 4, 3],
+							fill: false,
+							backgroundColor: 'rgba(54, 162, 235, 0.7)',
+							borderColor: 'rgba(54, 162, 235, 1)',
+							borderWidth: 3, // Slightly thicker line for better visibility
+							tension: 0.4, // Increased from 0.1 to 0.4 for smoother curve
+							pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+							pointBorderColor: '#fff',
+							pointRadius: 6, // Slightly larger points
+							pointHoverRadius: 8,
+							pointBorderWidth: 2,
+							cubicInterpolationMode: 'monotone' // Even smoother interpolation
+						}
+					]
 				},
 				options: {
 					responsive: true,
@@ -141,7 +143,6 @@
 			});
 		}
 
-
 		return () => {
 			if (barChart) barChart.destroy();
 			if (lineChart) lineChart.destroy();
@@ -149,8 +150,9 @@
 	});
 </script>
 
-<h1>Dashboard</h1> 
+<h1 class="page-title">Study Dashboard <br> <span  class="sub-title">Detailed insights into your study patterns and progress.</span></h1>
 <main style="margin-top: 4rem;">
+	
 	<div id="top" class="row g-4">
 		<div class="col-md-3 col-sm-6 top-col card p-4 holographic-card">
 			<h2>Semester Progress <Loader /></h2>
@@ -172,7 +174,7 @@
 
 	<br /><br /><br />
 
-	<h1>Study Analytics</h1>
+	<h1 style="color: teal;">Study Analytics</h1>
 	<div id="top-2" class="row g-4 mt-4">
 		<div class="col-md-6 top-col2 card p-4 rounded">
 			<div class="chart-container" style="position: relative; height: 250px; width: 100%">
@@ -194,7 +196,7 @@
 		flex-direction: column;
 	}
 	.top-col2 {
-		min-height:20rem;
+		min-height: 20rem;
 		display: flex;
 		flex-direction: column;
 	}

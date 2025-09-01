@@ -218,7 +218,8 @@
                     <ChevronDown size={20} />
                 {/if}
             </button>
-            <h1 class="mb-0">Course Manager</h1>
+            <h1 class="mb-0 page-title">Course Manager</h1>
+            
         </div>
         <button
             class="btn text-light"
@@ -340,18 +341,18 @@
                     </div>
                 {:else}
                     <div class="card" in:scale>
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">{activeCourse.name}</h5>
+                        <div style="background-color: var(--purple);" class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 text-light" >{activeCourse.name}</h5>
                             <div>
                                 <button
                                     class="btn btn-sm"
                                     onclick={() => editingCourse = { ...activeCourse }}
                                     aria-label="Edit course"
                                 >
-                                    <Pencil size={16} />
+                                    <Pencil size={16} color="white" />
                                 </button>
                                 <button class="btn btn-sm ms-1" onclick={() => deleteCourse(activeCourse)} aria-label="Delete course">
-                                    <Trash2 size={16} />
+                                    <Trash2 size={16}  color="white"/>
                                 </button>
                             </div>
                         </div>
@@ -398,12 +399,13 @@
                                                 <GripVertical size={16} class="me-2 text-muted" />
                                                 <input
                                                     type="checkbox"
-                                                    class="form-check-input me-2"
+                                                    class=" me-2"
                                                     style="width: 18px; height: 18px; cursor: pointer;"
                                                     checked={topic.completed}
                                                     onchange={() => toggleTopic(topic)}
                                                     id={`topic-${topic.id}`}
                                                 />
+                                                &nbsp;
                                                 <label for={`topic-${topic.id}`} class="mb-0 {topic.completed ? 'text-decoration-line-through text-muted' : ''}">
                                                     {topic.name}
                                                 </label>
@@ -414,10 +416,10 @@
                                                     onclick={() => startEditTopic(topic)}
                                                     aria-label="Edit topic"
                                                 >
-                                                    <Pencil size={14} />
+                                                    <Pencil size={14}  color="teal"/>
                                                 </button>
                                                 <button class="btn btn-sm ms-1" onclick={() => deleteTopic(topic)} aria-label="Delete topic">
-                                                    <Trash2 size={14} />
+                                                    <Trash2 size={14}  color="red"/>
                                                 </button>
                                             </div>
                                         </li>
@@ -571,7 +573,7 @@
     
     .progress-bar {
         transition: width 0.5s ease;
-        background-color: var(--purple);
+        background-color: var(--green);
     }
     
     .modal-backdrop {
