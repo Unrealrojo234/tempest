@@ -387,7 +387,7 @@
 		{#each sortedExams as exam (exam.id)}
 			<div class="col" style="margin-bottom: 16px !important;">
 				<div class="card h-100 shadow-sm">
-					<div class="card-header d-flex justify-content-between align-items-center" style="background-color: var(--purple);">
+					<div class="card-header d-flex justify-content-between align-items-center" style="background-color: aliceblue;">
 						<div>
 							<span class="badge {priorityStyles[exam.priority]} me-2"
 								>{exam.priority.toUpperCase()}</span
@@ -395,9 +395,9 @@
 							<span class="badge bg-light text-dark">{exam.type.toUpperCase()}</span>
 						</div>
 						<div class="btn-group btn-group-sm">
-							<button class="btn btn-outline-teal" on:click={() => editExam(exam)}> <Pencil color="white"/></button>
+							<button class="btn btn-outline-teal" on:click={() => editExam(exam)}> <Pencil color="teal"/></button>
 							<button class="btn " on:click={() => deleteExam(exam.id)}>
-								<Trash2 color="white"/>
+								<Trash2 color="red"/>
 							</button>
 						</div>
 					</div>
