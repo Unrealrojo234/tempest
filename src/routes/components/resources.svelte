@@ -229,9 +229,9 @@
 	<!-- Resources Grid -->
 	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 		{#each filteredResources as resource (resource.id)}
-			<div class="col holographic-card resources">
+			<div class="col holographic-card resources" style="border: 1px solid var(--purple) !important;">
 				<div class="card h-100 shadow-sm" style="width: 100%;">
-					<div class="card-header d-flex justify-content-between align-items-center">
+					<div class="card-header d-flex justify-content-between align-items-center" style="background-color: aliceblue;">
 						<span class={`badge ${typeColors[resource.type]} rounded-pill`}>
 							{typeIcons[resource.type]}
 							{resource.type.toUpperCase()}
