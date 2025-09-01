@@ -64,29 +64,29 @@
 	<div class="row g-0 m-0 p-0">
 		<div class="col-auto m-0 p-0">
 			<div id="drawer-div" class="card m-0">
-				<div class="logo-section"></div>
+				<div id="fixed">
+					<div class="logo-section"></div>
+					<nav class="navigation">
+						{#each tabs as tab}
+							{@const Icon = tab.icon}
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<button
+								class="tab {activeTab === tab.id ? 'active' : ''}"
+								onclick={() => handleTabClick(tab.id)}
+							>
+								<Icon class="icon" />&nbsp;&nbsp;
+								<span class="tab-name">{tab.name}</span>
+							</button>
+						{/each}
+					</nav>
 
-				<nav class="navigation">
-					{#each tabs as tab}
-						{@const Icon = tab.icon}
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<button
-
-							class="tab {activeTab === tab.id ? 'active' : ''}"
-							onclick={() => handleTabClick(tab.id)}
-						>
-							<Icon class="icon" />&nbsp;&nbsp;
-							<span class="tab-name">{tab.name}</span>
+					<div class="logout-section">
+						<button class="logout-btn" onclick={handleLogout}>
+							<LogOut class="logout-icon" />
+							<span>Logout</span>
 						</button>
-					{/each}
-				</nav>
-
-				<div class="logout-section">
-					<button class="logout-btn" onclick={handleLogout}>
-						<LogOut class="logout-icon" />
-						<span>Logout</span>
-					</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -135,12 +135,14 @@
 		height: 100vh;
 		width: 280px;
 		background-color: var(--bg-card);
-		border-right: 2px solid var(--primary);
+		border-right: 4px solid var(--purple);
+		border-radius: 0% !important;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		padding: 1.5rem 0;
+		padding: 1.5rem 0.3rem;
 		box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+		position: static;
 	}
 
 	#tabs {
@@ -163,9 +165,9 @@
 		margin-bottom: 1.2rem;
 		border-radius: 12px;
 		cursor: pointer;
-        background-color: qhite;
-        border: none;
-        width: 100%;
+		background-color: qhite;
+		border: none;
+		width: 100%;
 		transition: all 0.2s ease;
 		color: var(--text);
 	}
@@ -177,7 +179,7 @@
 	.tab.active {
 		background-color: var(--purple);
 		color: white;
-        border: none;
+		border: none;
 	}
 
 	.tab-name {
@@ -210,4 +212,6 @@
 		background-color: var(--purple);
 		color: white;
 	}
+
+
 </style>
