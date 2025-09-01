@@ -46,6 +46,20 @@
 			title: 'Ancient Civilizations',
 			type: 'link',
 			content: 'https://example.com/ancient-history'
+		},
+		{
+			id: '7',
+			topic: 'Biology',
+			title: 'Cell Structure',
+			type: 'note',
+			content: 'Detailed notes on cellular anatomy and functions'
+		},
+		{
+			id: '8',
+			topic: 'Chemistry',
+			title: 'Organic Chemistry Reactions',
+			type: 'pdf',
+			content: 'Comprehensive guide to organic reactions'
 		}
 	];
 
@@ -132,6 +146,7 @@
 <div class="container mx-auto p-4 d-flex flex-column min-vh-100">
 	<h1 class="page-title">Study Resources</h1>
 	<p class="sub-title">Organize your study materials and references.</p>
+	
 	<!-- Search and Filter -->
 	<div class="row mb-4">
 		<div class="col-md-6 mb-2">
@@ -179,17 +194,14 @@
 			<div class="card-body">
 				<form on:submit|preventDefault={handleSubmit}>
 					<div class="mb-3">
-						<!-- svelte-ignore a11y_label_has_associated_control -->
 						<label class="form-label">Topic</label>
 						<input type="text" class="form-control" bind:value={newResource.topic} required />
 					</div>
 					<div class="mb-3">
-						<!-- svelte-ignore a11y_label_has_associated_control -->
 						<label class="form-label">Title</label>
 						<input type="text" class="form-control" bind:value={newResource.title} required />
 					</div>
 					<div class="mb-3">
-						<!-- svelte-ignore a11y_label_has_associated_control -->
 						<label class="form-label">Type</label>
 						<select class="form-select" bind:value={newResource.type}>
 							<option value="note">Note</option>
@@ -198,7 +210,6 @@
 						</select>
 					</div>
 					<div class="mb-3">
-						<!-- svelte-ignore a11y_label_has_associated_control -->
 						<label class="form-label">Content</label>
 						{#if newResource.type === 'link'}
 							<input
@@ -226,12 +237,12 @@
 		</div>
 	{/if}
 
-	<!-- Resources Grid -->
-	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+	<!-- Resources Grid with improved spacing -->
+	<div class="resources-grid">
 		{#each filteredResources as resource (resource.id)}
-			<div class="col holographic-card resources" style="border: 1px solid var(--purple) !important;">
-				<div class="card h-100 shadow-sm" style="width: 100%;">
-					<div class="card-header d-flex justify-content-between align-items-center" style="background-color: aliceblue;">
+			<div class="resource-card">
+				<div class="card h-100">
+					<div class="card-header d-flex justify-content-between align-items-center">
 						<span class={`badge ${typeColors[resource.type]} rounded-pill`}>
 							{typeIcons[resource.type]}
 							{resource.type.toUpperCase()}
@@ -250,12 +261,12 @@
 						<h6 class="card-subtitle mb-2 text-muted">{resource.topic}</h6>
 						{#if resource.type === 'link'}
 							<p class="card-text">
-								<a href={resource.content} target="_blank" class="text-teal-600"
+								<a href={resource.content} target="_blank" class="text-teal-600 link-truncate"
 									>{resource.content}</a
 								>
 							</p>
 						{:else}
-							<p class="card-text">{resource.content}</p>
+							<p class="card-text content-truncate">{resource.content}</p>
 						{/if}
 					</div>
 				</div>
@@ -270,7 +281,7 @@
 	</div>
 
 	<!-- Resource Summary Card -->
-	<div class="card border-purple position-static mt-auto">
+	<div class="card border-purple mt-4">
 		<div class="card-header text-light" style="background-color: var(--purple);">
 			<h5 class="mb-0">Resource Summary</h5>
 		</div>
@@ -298,46 +309,158 @@
 </div>
 
 <style>
-	.resources {
-		border: 1px solid var(--purple);
-		margin-bottom: 16px !important;
+	:global(body) {
+		--teal: #20c997;
+		--purple: #6f42c1;
+		--light-bg: #f8f9fa;
 	}
-
+	
+	.container {
+		max-width: 1200px;
+	}
+	
+	.page-title {
+		color: var(--purple);
+		font-weight: 700;
+		margin-bottom: 0.5rem;
+	}
+	
+	.sub-title {
+		color: #6c757d;
+		margin-bottom: 2rem;
+	}
+	
+	/* Resources Grid with even spacing */
+	.resources-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+	}
+	
+	.resource-card {
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+	
+	.resource-card:hover {
+		transform: translateY(-5px);
+	}
+	
+	.resource-card .card {
+		border: 1px solid rgba(111, 66, 193, 0.2);
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+		transition: all 0.2s ease;
+	}
+	
+	.resource-card .card:hover {
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+	}
+	
+	.resource-card .card-header {
+		background-color: rgba(32, 201, 151, 0.1);
+		border-bottom: 1px solid rgba(111, 66, 193, 0.1);
+		padding: 0.75rem 1rem;
+	}
+	
+	.resource-card .card-body {
+		padding: 1.25rem;
+	}
+	
+	.resource-card .card-title {
+		font-size: 1.25rem;
+		margin-bottom: 0.5rem;
+	}
+	
+	.resource-card .card-subtitle {
+		font-size: 0.9rem;
+		margin-bottom: 1rem;
+	}
+	
+	.resource-card .card-text {
+		color: #495057;
+		margin-bottom: 0;
+	}
+	
+	/* Truncate long text */
+	.link-truncate,
+	.content-truncate {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+	
+	/* Button styles */
 	.btn-teal {
-		background-color: teal;
+		background-color: var(--teal);
 		color: white;
-		border-color: teal;
+		border-color: var(--teal);
+		padding: 0.5rem 1.5rem;
+		border-radius: 8px;
+		font-weight: 500;
 	}
+	
 	.btn-teal:hover {
-		background-color: #006969;
-		border-color: #006969;
+		background-color: #199d78;
+		border-color: #199d78;
 		color: white;
 	}
-	.bg-teal-100 {
-		background-color: rgba(0, 128, 128, 0.1);
-	}
-	.border-teal {
-		border-color: teal !important;
-	}
-	.border-teal-300 {
-		border-color: #20c9c9 !important;
-	}
-	.text-teal-800 {
-		color: #004d4d;
-	}
-	.text-teal-600 {
-		color: teal;
-	}
-	.text-teal-700 {
-		color: #006666;
-	}
+	
+	/* Badge styles */
 	.bg-purple-100 {
-		background-color: rgba(128, 0, 128, 0.1);
+		background-color: rgba(111, 66, 193, 0.1) !important;
+		color: #6f42c1 !important;
 	}
-	.text-purple-800 {
-		color: #4b004b;
+	
+	.bg-teal-100 {
+		background-color: rgba(32, 201, 151, 0.1) !important;
+		color: #20c997 !important;
 	}
+	
+	.bg-blue-100 {
+		background-color: rgba(13, 110, 253, 0.1) !important;
+		color: #0d6efd !important;
+	}
+	
+	.border-teal {
+		border-color: var(--teal) !important;
+	}
+	
 	.border-purple {
-		border-color: purple !important;
+		border-color: var(--purple) !important;
+	}
+	
+	.text-teal-800 {
+		color: #0a5442;
+	}
+	
+	.text-purple-800 {
+		color: #3d2364;
+	}
+	
+	.text-teal-600 {
+		color: var(--teal);
+	}
+	
+	/* Form styles */
+	.form-control:focus,
+	.form-select:focus {
+		border-color: var(--teal);
+		box-shadow: 0 0 0 0.25rem rgba(32, 201, 151, 0.25);
+	}
+	
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		.resources-grid {
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+		
+		.resource-card .card {
+			margin-bottom: 0;
+		}
 	}
 </style>
