@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { PlusCircle, Edit3, Trash2, Calendar, CheckCircle, Circle } from '@lucide/svelte';
+	import { PlusCircle, Edit3, Trash2, Calendar, CheckCircle, Circle, icons } from '@lucide/svelte';
 	import Toast from '$lib/toast';
 
 	// State variables
@@ -381,6 +381,7 @@
 						<button type="submit" class="btn btn-teal">
 							{editingId ? 'Update' : 'Create'} Semester
 						</button>
+            &nbsp;&nbsp;&nbsp;
 						<button type="button" class="btn btn-outline-secondary" on:click={resetForm}>
 							Cancel
 						</button>
