@@ -5,4 +5,6 @@ const pbUrl = PUBLIC_POCKETBASE_URL;
 
 const pb = new PocketBase(pbUrl);
 
+
+
 export default pb;
