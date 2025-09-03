@@ -118,52 +118,24 @@ export async function PUT({ request }) {
 export async function PATCH({ request }) {
   try {
     const { id, completed } = await request.json();
+
+
     
     if (!id || completed === undefined) {
       return json({ error: 'ID and completed status are required' }, { status: 400 });
     }
+
+    const data = {completed:completed}
+
     
     // Update the topic completion status
-    const record = await pb.collection('topics').update(id, { completed });
+    const record = await pb.collection('topics').update(id, data);
     return json(record);
   } catch (error) {
     return handleError(error, 404);
   }
 }
 
-// PATCH: Update topic order (for drag and drop)
-export async function PATCH({ request }) {
-  try {
-    const { id, order, course } = await request.json();
-    
-    if (!id || order === undefined) {
-      return json({ error: 'ID and order are required' }, { status: 400 });
-    }
-    
-    // Update the topic order
-    const record = await pb.collection('topics').update(id, { order });
-    
-    // If needed, reorder other topics in the same course
-    if (course) {
-      const topics = await pb.collection('topics').getFullList({
-        filter: `course='${course}' && id != '${id}'`,
-        sort: 'order'
-      });
-      
-      // Update orders to be sequential
-      for (let i = 0; i < topics.length; i++) {
-        const newOrder = i < order ? i + 1 : i + 2;
-        if (topics[i].order !== newOrder) {
-          await pb.collection('topics').update(topics[i].id, { order: newOrder });
-        }
-      }
-    }
-    
-    return json(record);
-  } catch (error) {
-    return handleError(error, 404);
-  }
-}
 
 // DELETE: Remove a topic
 export async function DELETE({ request }) {

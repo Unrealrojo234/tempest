@@ -121,7 +121,7 @@
 
 	async function deleteSemester(id) {
 		Swal.fire({
-			title: 'This action cannot be undone!',
+			text:'Are you sure you want to delete this semester? This action cannot be undone!',
 			showDenyButton: true,
 			showConfirmButton: false,
 			showCancelButton: true,
