@@ -273,7 +273,9 @@
 	/* Logout section - fixed at bottom */
 	.logout-section {
 		padding: 1rem;
-		margin-top: auto; /* Push to bottom */
+		position: absolute;
+		bottom: -.6%;
+		width: 98%;
 		border-top: 1px solid #eee;
 	}
 
