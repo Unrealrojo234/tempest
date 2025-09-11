@@ -152,28 +152,3 @@ export async function DELETE({ request }) {
     return handleError(error, 404);
   }
 }
-
-// PUT: Update multiple topics at once (for batch operations)
-export async function PUT({ request }) {
-  try {
-    const { updates } = await request.json();
-    
-    if (!Array.isArray(updates)) {
-      return json({ error: 'Updates array is required' }, { status: 400 });
-    }
-    
-    const results = [];
-    for (const update of updates) {
-      if (!update.id) {
-        return json({ error: 'ID is required for each update' }, { status: 400 });
-      }
-      
-      const record = await pb.collection('topics').update(update.id, update);
-      results.push(record);
-    }
-    
-    return json({ success: true, results });
-  } catch (error) {
-    return handleError(error, 404);
-  }
-}

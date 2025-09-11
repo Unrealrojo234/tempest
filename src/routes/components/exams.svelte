@@ -1,63 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
+	import { PlusCircle, Trash2, Pencil } from '@lucide/svelte';
+	import pb from '$lib';
 
-    import { PlusCircle, Trash2, Pencil } from '@lucide/svelte';
-
-	// Mock data - in a real app, this would come from PocketBase
-	let exams = [
-		{
-			id: '1',
-			courses: 'Mathematics',
-			name: 'Midterm Exam',
-			date: '2023-10-15T10:00:00',
-			is_completed: false,
-			location: 'Room 101',
-			priority: 'high',
-			type: 'exam'
-		},
-		{
-			id: '2',
-			courses: 'Physics',
-			name: 'Quantum Mechanics Quiz',
-			date: '2023-10-18T14:30:00',
-			is_completed: false,
-			location: 'Room 204',
-			priority: 'medium',
-			type: 'quiz'
-		},
-		{
-			id: '3',
-			courses: 'Computer Science',
-			name: 'Final Project Submission',
-			date: '2023-10-20T23:59:00',
-			is_completed: false,
-			location: 'Online',
-			priority: 'high',
-			type: 'assignment'
-		},
-		{
-			id: '4',
-			courses: 'History',
-			name: 'Research Paper',
-			date: '2023-10-25T17:00:00',
-			is_completed: true,
-			location: 'Library',
-			priority: 'low',
-			type: 'assignment'
-		},
-		{
-			id: '5',
-			courses: 'Literature',
-			name: 'Poetry Analysis',
-			date: '2023-10-12T09:00:00',
-			is_completed: true,
-			location: 'Room 305',
-			priority: 'medium',
-			type: 'assignment'
-		}
-	];
-
-	// Form state
+	// State
+	let exams = [];
+	let courses = [];
 	let newExam = {
 		courses: '',
 		name: '',
@@ -67,8 +15,6 @@
 		priority: 'medium',
 		type: 'exam'
 	};
-
-	// UI state
 	let editingId = null;
 	let showForm = false;
 	let filterCompleted = 'all';
@@ -76,6 +22,36 @@
 	let filterType = 'all';
 	let sortBy = 'date';
 	let sortOrder = 'asc';
+
+	// Fetch exams and courses on mount
+	onMount(async () => {
+		try {
+			// Fetch exams with course relation expanded
+			const examRecords = await pb.collection('exams').getFullList({
+				expand: 'courses',
+				sort: '+date'
+			});
+			exams = examRecords.map((record) => ({
+				id: record.id,
+				courses: record.expand?.courses?.name || 'Unknown',
+				courseId: record.courses,
+				name: record.name,
+				date: record.date,
+				is_completed: record.is_completed,
+				location: record.location,
+				priority: record.priority,
+				type: record.type
+			}));
+
+			// Fetch courses for the form dropdown
+			const courseRecords = await pb.collection('courses').getFullList({
+				sort: '+name'
+			});
+			courses = courseRecords;
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	});
 
 	// Computed values
 	$: filteredExams = exams.filter((exam) => {
@@ -90,7 +66,6 @@
 
 	$: sortedExams = [...filteredExams].sort((a, b) => {
 		let modifier = sortOrder === 'asc' ? 1 : -1;
-
 		if (sortBy === 'date') {
 			return (new Date(a.date) - new Date(b.date)) * modifier;
 		} else if (sortBy === 'priority') {
@@ -106,32 +81,104 @@
 	$: completedExams = exams.filter((exam) => exam.is_completed);
 	$: highPriorityExams = exams.filter((exam) => exam.priority === 'high' && !exam.is_completed);
 
+	function handleSubmit() {
+		if (!editingId) {
+			createExam();
+		} else {
+			updateExam();
+		}
+	}
+
 	// CRUD operations
-	function createExam() {
-		const newId = Math.max(...exams.map((e) => parseInt(e.id))) + 1;
-		exams = [...exams, { ...newExam, id: newId.toString() }];
-		resetForm();
+	async function createExam() {
+		try {
+			await pb.collection('exams').create({
+				...newExam,
+				courses: newExam.courses // This is the course ID from the select
+			});
+			// Refresh exams list
+			const examRecords = await pb.collection('exams').getFullList({
+				expand: 'courses',
+				sort: '+date'
+			});
+			exams = examRecords.map((record) => ({
+				id: record.id,
+				courses: record.expand?.courses?.name || 'Unknown',
+				courseId: record.courses,
+				name: record.name,
+				date: record.date,
+				is_completed: record.is_completed,
+				location: record.location,
+				priority: record.priority,
+				type: record.type
+			}));
+			resetForm();
+		} catch (error) {
+			console.error(error.message);
+		}
 	}
 
-	function updateExam() {
-		exams = exams.map((e) => (e.id === editingId ? { ...newExam, id: editingId } : e));
-		resetForm();
+	async function updateExam() {
+		try {
+			await pb.collection('exams').update(editingId, {
+				...newExam,
+				courses: newExam.courses // This is the course ID
+			});
+			// Refresh exams list
+			const examRecords = await pb.collection('exams').getFullList({
+				expand: 'courses',
+				sort: '+date'
+			});
+			exams = examRecords.map((record) => ({
+				id: record.id,
+				courses: record.expand?.courses?.name || 'Unknown',
+				courseId: record.courses,
+				name: record.name,
+				date: record.date,
+				is_completed: record.is_completed,
+				location: record.location,
+				priority: record.priority,
+				type: record.type
+			}));
+			resetForm();
+		} catch (error) {
+			console.error('Error updating exam:', error);
+		}
 	}
 
-	function deleteExam(id) {
-		exams = exams.filter((e) => e.id !== id);
+	async function deleteExam(id) {
+		try {
+			await pb.collection('exams').delete(id);
+			exams = exams.filter((e) => e.id !== id);
+		} catch (error) {
+			console.error('Error deleting exam:', error);
+		}
 	}
 
 	function editExam(exam) {
-		newExam = { ...exam };
-		// Convert date to HTML datetime-local format
-		newExam.date = exam.date.slice(0, 16);
+		newExam = {
+			courses: exam.courseId,
+			name: exam.name,
+			date: exam.date.slice(0, 16),
+			is_completed: exam.is_completed,
+			location: exam.location,
+			priority: exam.priority,
+			type: exam.type
+		};
 		editingId = exam.id;
 		showForm = true;
 	}
 
-	function toggleComplete(id) {
-		exams = exams.map((e) => (e.id === id ? { ...e, is_completed: !e.is_completed } : e));
+	async function toggleComplete(id) {
+		try {
+			const exam = exams.find((e) => e.id === id);
+			await pb.collection('exams').update(id, {
+				is_completed: !exam.is_completed
+			});
+			exams = exams.map((e) => (e.id === id ? { ...e, is_completed: !e.is_completed } : e));
+		} catch (error) {
+			console.error('Error toggling completion:', error);
+		}
 	}
 
 	function resetForm() {
@@ -146,14 +193,6 @@
 		};
 		editingId = null;
 		showForm = false;
-	}
-
-	function handleSubmit() {
-		if (editingId) {
-			updateExam();
-		} else {
-			createExam();
-		}
 	}
 
 	// Priority styling
@@ -202,7 +241,7 @@
 		<div class="col-md-4 mb-3">
 			<div class="card bg-teal-20 border-teal holographic-card-green">
 				<div class="card-body text-center">
-					<h5 class="card-title text-teal-800">Upcoming </h5>
+					<h5 class="card-title text-teal-800">Upcoming</h5>
 					<p class="card-text display-5 text-teal-800">{upcomingExams.length}</p>
 				</div>
 			</div>
@@ -226,7 +265,7 @@
 	</div>
 
 	<!-- Filters and Sorting -->
-	<div class="card mb-4 ">
+	<div class="card mb-4">
 		<div class="card-header text-light" style="background-color: var(--purple)">
 			<h5 class="mb-0">Filter & Sort</h5>
 		</div>
@@ -255,10 +294,9 @@
 					<!-- svelte-ignore a11y_label_has_associated_control -->
 					<label class="form-label">Type</label>
 					<select class="form-select" bind:value={filterType}>
-						<option value="all">All</option>
-						<option value="exam">Exam</option>
-						<option value="quiz">Quiz</option>
 						<option value="assignment">Assignment</option>
+						<option value="cat">Cat</option>
+						<option value="exam">Exam</option>
 					</select>
 				</div>
 				<div class="col-md-3 mb-2">
@@ -285,16 +323,14 @@
 	<!-- Add Exam Button -->
 	<div class="mb-4">
 		<button
-
-
-        style="background-color: var(--green);color:aliceblue;"
+			style="background-color: var(--green);color:aliceblue;"
 			class="btn d-flex align-items-center"
 			on:click={() => {
 				resetForm();
 				showForm = true;
 			}}
 		>
-			<span class="me-2"><PlusCircle/></span> &nbsp;Schedule New Exam
+			<span class="me-2"><PlusCircle /></span> &nbsp;Schedule New Exam
 		</button>
 	</div>
 
@@ -310,7 +346,12 @@
 						<div class="col-md-6 mb-3">
 							<!-- svelte-ignore a11y_label_has_associated_control -->
 							<label class="form-label">Course</label>
-							<input type="text" class="form-control" bind:value={newExam.courses} required />
+							<select class="form-select" bind:value={newExam.courses} required>
+								<option value="" disabled>Select a course</option>
+								{#each courses as course}
+									<option value={course.id}>{course.name}</option>
+								{/each}
+							</select>
 						</div>
 						<div class="col-md-6 mb-3">
 							<!-- svelte-ignore a11y_label_has_associated_control -->
@@ -318,7 +359,6 @@
 							<input type="text" class="form-control" bind:value={newExam.name} required />
 						</div>
 					</div>
-
 					<div class="row">
 						<div class="col-md-4 mb-3">
 							<!-- svelte-ignore a11y_label_has_associated_control -->
@@ -343,13 +383,12 @@
 							<!-- svelte-ignore a11y_label_has_associated_control -->
 							<label class="form-label">Type</label>
 							<select class="form-select" bind:value={newExam.type}>
-								<option value="exam">Exam</option>
-								<option value="quiz">Quiz</option>
 								<option value="assignment">Assignment</option>
+								<option value="cat">Cat</option>
+								<option value="exam">Exam</option>
 							</select>
 						</div>
 					</div>
-
 					<div class="row">
 						<div class="col-md-8 mb-3">
 							<!-- svelte-ignore a11y_label_has_associated_control -->
@@ -364,11 +403,10 @@
 									bind:checked={newExam.is_completed}
 									id="completedCheck"
 								/>
-								<label class="form-check-label" for="completedCheck"> Completed </label>
+								<label class="form-check-label" for="completedCheck">Completed</label>
 							</div>
 						</div>
 					</div>
-
 					<div class="d-flex gap-2">
 						<button type="submit" class="btn btn-teal">
 							{editingId ? 'Update' : 'Create'} Exam
@@ -387,7 +425,10 @@
 		{#each sortedExams as exam (exam.id)}
 			<div class="col" style="margin-bottom: 16px !important;">
 				<div class="card h-100 shadow-sm">
-					<div class="card-header d-flex justify-content-between align-items-center" style="background-color: aliceblue;">
+					<div
+						class="card-header d-flex justify-content-between align-items-center"
+						style="background-color: aliceblue;"
+					>
 						<div>
 							<span class="badge {priorityStyles[exam.priority]} me-2"
 								>{exam.priority.toUpperCase()}</span
@@ -395,9 +436,11 @@
 							<span class="badge bg-light text-dark">{exam.type.toUpperCase()}</span>
 						</div>
 						<div class="btn-group btn-group-sm">
-							<button class="btn btn-outline-teal" on:click={() => editExam(exam)}> <Pencil color="teal"/></button>
-							<button class="btn " on:click={() => deleteExam(exam.id)}>
-								<Trash2 color="red"/>
+							<button class="btn btn-outline-teal" on:click={() => editExam(exam)}
+								><Pencil color="teal" /></button
+							>
+							<button class="btn" on:click={() => deleteExam(exam.id)}>
+								<Trash2 color="red" />
 							</button>
 						</div>
 					</div>
@@ -407,7 +450,6 @@
 							<span class="text-muted">{typeIcons[exam.type]}</span>
 						</div>
 						<h6 class="card-subtitle mb-2 text-muted">{exam.courses}</h6>
-
 						<div class="row mt-3">
 							<div class="col-md-6">
 								<p class="card-text">
@@ -432,7 +474,7 @@
 									<input
 										class=""
 										type="checkbox"
-                                        style="accent-color:var(--purple) !important;"
+										style="accent-color:var(--purple) !important;"
 										id="completeSwitch{exam.id}"
 										checked={exam.is_completed}
 										on:change={() => toggleComplete(exam.id)}
@@ -441,7 +483,6 @@
 										{exam.is_completed ? 'Completed' : 'Mark as completed'}
 									</label>
 								</div>
-
 								{#if exam.is_completed}
 									<div class="alert alert-success mt-3" role="alert">
 										<i class="fas fa-check-circle me-2"></i> This exam has been completed
@@ -498,9 +539,6 @@
 	.text-orange-800 {
 		color: #984c0c;
 	}
-
-
-
 	.holographic-card-orange::before {
 		content: '';
 		position: absolute;
@@ -513,14 +551,12 @@
 		transition: all 0.5s ease;
 		opacity: 0;
 	}
-
 	.holographic-card-orange:hover {
 		transform: scale(1.05);
 		box-shadow: 0 0 20px orange;
 		z-index: 100;
 		transition: 500ms;
 	}
-
 	.holographic-card-orange:hover::before {
 		opacity: 1;
 		transform: rotate(-45deg) translateY(100%);
