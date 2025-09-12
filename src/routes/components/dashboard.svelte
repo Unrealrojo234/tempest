@@ -2,6 +2,7 @@
 	import { Loader, Timer, CalendarCheck, Sparkles } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import Chart from 'chart.js/auto';
+	import pb from '$lib';
 
 	let barChart;
 	let lineChart;
@@ -18,6 +19,102 @@
 		tealLighter: '#20b2b2'
 	};
 
+	let semester = $state('');
+
+	let upcomingExams = $state('Np data');
+
+	let studyEffectiveness = $state('No data');
+
+	let studyMinutes = $state('No data');
+
+	async function fetchSemester() {
+		const records = await pb.collection('semesters').getFullList({
+			sort: '-created'
+		});
+
+		records.forEach((record) => {
+			if (record.is_active) {
+				semester = record;
+			}
+		});
+	}
+
+	async function fetchExams() {
+		const records = await pb.collection('exams').getFullList({
+			sort: '-created'
+		});
+
+		let exmas = [];
+		records.forEach((record) => {
+			if (!record.is_completed) {
+				exmas.push(record);
+			}
+		});
+
+		upcomingExams = exmas.length;
+	}
+
+	async function fetchStudyEffectiveness() {
+		const records = await pb.collection('study_sessions').getFullList(
+			{ requestKey: null },
+			{
+				sort: '-created'
+			}
+		);
+
+		const studyCount = records.length;
+
+
+		let totalEffectiveness = 0;
+
+		records.forEach((record) => {
+			totalEffectiveness += record.effectiveness;
+		});
+
+		let effectiveness = totalEffectiveness / studyCount;
+
+
+		studyEffectiveness = effectiveness.toFixed(1);
+	}
+
+	async function fetchStudyTime() {
+		const records = await pb.collection('study_sessions').getFullList({
+			sort: '-created'
+		});
+
+		let secconds = 0;
+
+		records.forEach((record) => {
+			secconds += record.duration;
+		});
+
+		const minutes = (secconds / 60).toFixed(0);
+
+		studyMinutes = minutes;
+	}
+
+	fetchSemester();
+
+	fetchExams();
+
+	fetchStudyEffectiveness();
+
+	fetchStudyTime();
+
+	// Calculate progress for a semester
+	function calculateProgress(semester) {
+		const start = new Date(semester.start_date);
+		const end = new Date(semester.end_date);
+		const today = new Date();
+
+		if (today < start) return 0;
+		if (today > end) return 100;
+
+		const total = end - start;
+		const progress = today - start;
+		return Math.round((progress / total) * 100);
+	}
+
 	onMount(() => {
 		// Bar Chart - Hours vs Units
 		if (barChartRef) {
@@ -29,9 +126,9 @@
 						{
 							label: 'Hours',
 							data: [8, 6, 9, 5, 7, 4],
-							backgroundColor: Array(6).fill(0).map((_, i) => 
-								`hsla(${194 + i * 10}, 70%, 60%, 0.7)`
-							),
+							backgroundColor: Array(6)
+								.fill(0)
+								.map((_, i) => `hsla(${194 + i * 10}, 70%, 60%, 0.7)`),
 							borderColor: colors.teal,
 							borderWidth: 1,
 							borderRadius: 4,
@@ -173,43 +270,43 @@
 		<h1 class="page-title">Study Dashboard</h1>
 		<p class="sub-title">Detailed insights into your study patterns and progress</p>
 	</header>
-	
+
 	<main>
 		<div class="stats-grid">
 			<div class="stat-card" style="--accent-color: {colors.teal}">
 				<div class="stat-content">
 					<h2>Semester Progress</h2>
-					<p class="stat-value">12%</p>
+					<p class="stat-value">{calculateProgress(semester)}%</p>
 				</div>
 				<div class="stat-icon">
 					<Loader size={28} />
 				</div>
 			</div>
-			
+
 			<div class="stat-card" style="--accent-color: {colors.purple}">
 				<div class="stat-content">
 					<h2>Total Study Time</h2>
-					<p class="stat-value">10hrs</p>
+					<p class="stat-value">{studyMinutes} Minutes</p>
 				</div>
 				<div class="stat-icon">
 					<Timer size={28} />
 				</div>
 			</div>
-			
+
 			<div class="stat-card" style="--accent-color: {colors.tealLight}">
 				<div class="stat-content">
 					<h2>Study Effectiveness</h2>
-					<p class="stat-value">4.5</p>
+					<p class="stat-value">{studyEffectiveness}</p>
 				</div>
 				<div class="stat-icon">
 					<Sparkles size={28} />
 				</div>
 			</div>
-			
+
 			<div class="stat-card" style="--accent-color: {colors.purpleLight}">
 				<div class="stat-content">
 					<h2>Upcoming Exams</h2>
-					<p class="stat-value">4</p>
+					<p class="stat-value">{upcomingExams}</p>
 				</div>
 				<div class="stat-icon">
 					<CalendarCheck size={28} />
@@ -237,24 +334,28 @@
 
 <style>
 	:global(body) {
-		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		font-family:
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			sans-serif;
 		background-color: #f8fafc;
 		color: #334155;
 		line-height: 1.6;
 	}
-	
+
 	.dashboard-container {
 		max-width: 1200px;
 		margin: 0 auto;
 		padding: 2rem 1.5rem;
 	}
-	
+
 	.page-header {
 		text-align: center;
 		margin-bottom: 3rem;
 	}
-	
-
 
 	.stats-grid {
 		display: grid;
@@ -262,7 +363,7 @@
 		gap: 1.5rem;
 		margin-bottom: 4rem;
 	}
-	
+
 	.stat-card {
 		background: white;
 		border-radius: 12px;
@@ -274,26 +375,26 @@
 		transition: all 0.3s ease;
 		border-left: 4px solid var(--accent-color);
 	}
-	
+
 	.stat-card:hover {
 		transform: translateY(-5px);
 		box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
 	}
-	
+
 	.stat-content h2 {
 		font-size: 1rem;
 		font-weight: 500;
 		color: #64748b;
 		margin: 0 0 0.5rem 0;
 	}
-	
+
 	.stat-value {
 		font-size: 2rem;
 		font-weight: 700;
 		color: var(--accent-color);
 		margin: 0;
 	}
-	
+
 	.stat-icon {
 		background: rgba(132, 94, 194, 0.1);
 		color: var(--accent-color);
@@ -304,11 +405,11 @@
 		align-items: center;
 		justify-content: center;
 	}
-	
+
 	.analytics-section {
 		margin-top: 2rem;
 	}
-	
+
 	.section-title {
 		font-size: 1.5rem;
 		font-weight: 600;
@@ -317,7 +418,7 @@
 		position: relative;
 		padding-bottom: 0.5rem;
 	}
-	
+
 	.section-title::after {
 		content: '';
 		position: absolute;
@@ -325,16 +426,16 @@
 		left: 0;
 		width: 50px;
 		height: 3px;
-		background: linear-gradient(to right, teal, var(--purple) );
+		background: linear-gradient(to right, teal, var(--purple));
 		border-radius: 3px;
 	}
-	
+
 	.charts-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
 		gap: 2rem;
 	}
-	
+
 	.chart-card {
 		background: white;
 		border-radius: 12px;
@@ -342,41 +443,41 @@
 		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
 		transition: all 0.3s ease;
 	}
-	
+
 	.chart-card:hover {
 		box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
 	}
-	
+
 	.chart-container {
 		position: relative;
 		height: 300px;
 		width: 100%;
 	}
-	
+
 	/* Responsive adjustments */
 	@media (max-width: 1100px) {
 		.charts-grid {
 			grid-template-columns: 1fr;
 		}
 	}
-	
+
 	@media (max-width: 768px) {
 		.dashboard-container {
 			padding: 1.5rem 1rem;
 		}
-		
+
 		.page-title {
 			font-size: 2rem;
 		}
-		
+
 		.stats-grid {
 			grid-template-columns: 1fr;
 		}
-		
+
 		.charts-grid {
 			grid-template-columns: 1fr;
 		}
-		
+
 		.chart-card {
 			padding: 1rem;
 		}
