@@ -404,7 +404,9 @@
 								>
 							</p>
 						{:else}
-							<p class="card-text content-truncate">{resource.content}</p>
+							<a href={`/render/${resource.id}`} target="_blank" class="text-teal-600 link-truncate"
+								>view resource</a
+							>
 						{/if}
 					</div>
 				</div>
