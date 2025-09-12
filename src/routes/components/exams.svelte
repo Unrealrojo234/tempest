@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { PlusCircle, Trash2, Pencil } from '@lucide/svelte';
 	import pb from '$lib';
+	import Toast from '$lib/toast';
 
 	// State
 	let exams = [];
@@ -82,11 +83,31 @@
 	$: highPriorityExams = exams.filter((exam) => exam.priority === 'high' && !exam.is_completed);
 
 	function handleSubmit() {
+		let date = new Date(newExam.date);
+
+		date = manualFormatToPocketBase(date);
+
+		newExam.date = date;
+
 		if (!editingId) {
 			createExam();
 		} else {
 			updateExam();
 		}
+	}
+
+	function manualFormatToPocketBase(dateInput) {
+		const date = new Date(dateInput);
+
+		const year = date.getUTCFullYear();
+		const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(date.getUTCDate()).padStart(2, '0');
+		const hours = String(date.getUTCHours()).padStart(2, '0');
+		const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+		const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+		const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
+
+		return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
 	}
 
 	// CRUD operations
@@ -96,11 +117,15 @@
 				...newExam,
 				courses: newExam.courses // This is the course ID from the select
 			});
+
+			Toast('success', 'Exam created successfully');
+
 			// Refresh exams list
 			const examRecords = await pb.collection('exams').getFullList({
 				expand: 'courses',
 				sort: '+date'
 			});
+
 			exams = examRecords.map((record) => ({
 				id: record.id,
 				courses: record.expand?.courses?.name || 'Unknown',
@@ -114,7 +139,7 @@
 			}));
 			resetForm();
 		} catch (error) {
-			console.error(error.message);
+			Toast('error', error.message);
 		}
 	}
 
@@ -124,6 +149,8 @@
 				...newExam,
 				courses: newExam.courses // This is the course ID
 			});
+
+			Toast('success', 'Exam updated successfully');
 			// Refresh exams list
 			const examRecords = await pb.collection('exams').getFullList({
 				expand: 'courses',
@@ -142,17 +169,28 @@
 			}));
 			resetForm();
 		} catch (error) {
-			console.error('Error updating exam:', error);
+			Toast('error', 'Error updating exam');
 		}
 	}
 
 	async function deleteExam(id) {
-		try {
-			await pb.collection('exams').delete(id);
-			exams = exams.filter((e) => e.id !== id);
-		} catch (error) {
-			console.error('Error deleting exam:', error);
-		}
+		Swal.fire({
+			text: 'Are you sure you want to delete this exam? This action cannot be undone!',
+			showDenyButton: true,
+			showConfirmButton: false,
+			showCancelButton: true,
+			denyButtonText: `Delete`
+		}).then(async (result) => {
+			if (result.isDenied) {
+				try {
+					await pb.collection('exams').delete(id);
+					exams = exams.filter((e) => e.id !== id);
+					Toast('success', 'Exam Deleted Successfully');
+				} catch (err) {
+					Toast('error', 'Error deleting exam');
+				}
+			}
+		});
 	}
 
 	function editExam(exam) {
@@ -294,6 +332,7 @@
 					<!-- svelte-ignore a11y_label_has_associated_control -->
 					<label class="form-label">Type</label>
 					<select class="form-select" bind:value={filterType}>
+						<option value="all">All</option>
 						<option value="assignment">Assignment</option>
 						<option value="cat">Cat</option>
 						<option value="exam">Exam</option>
