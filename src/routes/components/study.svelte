@@ -1,12 +1,16 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import { Clock, Play, Pause, Square, Star, BookOpen, Book } from '@lucide/svelte';
-	import StarRating from './starRating.svelte';
+	import StarRatings from './starRatings.svelte';
+	import pb from '$lib';
+	import Toast from '$lib/toast';
+	import Ratings from './Ratings.svelte';
 
 	// Timer state
 	let timerActive = false;
 	let timerSeconds = 0;
 	let timerInterval;
+	let startTime = null;
 
 	// Study session form
 	let selectedCourse = '';
@@ -14,24 +18,48 @@
 	let notes = '';
 	let hoverRating = 0;
 
-	// Sample courses
-	const courses = [
-		{ id: '1', name: 'Discrete Math' },
-		{ id: '2', name: 'Calculus' },
-		{ id: '3', name: 'Linear Algebra' },
-		{ id: '4', name: 'Computer Science' }
-	];
+	// Database state
+	let courses = [];
+	let recentSessions = [];
 
-	// Recent sessions (sample data)
-	let recentSessions = [
-		{ id: 1, course: 'Discrete Math', duration: '45:22', rating: 4, date: '2023-05-15' },
-		{ id: 2, course: 'Calculus', duration: '1:22:10', rating: 3, date: '2023-05-14' },
-		{ id: 3, course: 'Linear Algebra', duration: '30:45', rating: 5, date: '2023-05-13' }
-	];
+	// Fetch data on mount
+	onMount(async () => {
+		try {
+			// Fetch courses
+			const courseRecords = await pb.collection('courses').getFullList({
+				sort: '+name'
+			});
+			courses = courseRecords.map((record) => ({
+				id: record.id,
+				name: record.name
+			}));
+
+			// Fetch recent sessions with course relation expanded
+			let sessionRecords = await pb.collection('study_sessions').getFullList({
+				expand: 'course',
+				sort: '-created'
+			});
+
+			//Showing only the first three or last three sessions
+			sessionRecords = sessionRecords.slice(0, 4);
+
+			recentSessions = sessionRecords.map((record) => ({
+				id: record.id,
+				course: record.expand?.course?.name || 'Unknown',
+				duration: formatTime(record.duration),
+				rating: record.effectiveness,
+				date: new Date(record.created).toISOString().split('T')[0],
+				notes: record.notes || ''
+			}));
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	});
 
 	// Timer functions
 	function startTimer() {
 		timerActive = true;
+		startTime = new Date();
 		timerInterval = setInterval(() => {
 			timerSeconds++;
 		}, 1000);
@@ -46,13 +74,13 @@
 		timerActive = false;
 		clearInterval(timerInterval);
 		timerSeconds = 0;
+		startTime = null;
 	}
 
 	function formatTime(seconds) {
 		const hrs = Math.floor(seconds / 3600);
 		const mins = Math.floor((seconds % 3600) / 60);
 		const secs = seconds % 60;
-
 		return [
 			hrs.toString().padStart(2, '0'),
 			mins.toString().padStart(2, '0'),
@@ -72,32 +100,50 @@
 		hoverRating = 0;
 	}
 
-	function submitSession() {
+	async function submitSession() {
 		if (!selectedCourse) {
 			alert('Please select a course');
 			return;
 		}
 
-		const courseName = courses.find((c) => c.id === selectedCourse)?.name;
-
-		// Add to recent sessions
-		recentSessions = [
-			{
-				id: recentSessions.length + 1,
-				course: courseName,
-				duration: formatTime(timerSeconds),
-				rating: effectivenessRating,
-				date: new Date().toISOString().split('T')[0],
+		try {
+			const endTime = new Date();
+			const record = await pb.collection('study_sessions').create({
+				course: selectedCourse,
+				start_time: startTime ? startTime.toISOString() : new Date().toISOString(),
+				end_time: endTime.toISOString(),
+				duration: timerSeconds,
+				effectiveness: effectivenessRating,
 				notes: notes
-			},
-			...recentSessions
-		];
+			});
 
-		// Reset form
-		resetTimer();
-		selectedCourse = '';
-		effectivenessRating = 0;
-		notes = '';
+			Toast('success','Session Successfully Recorded')
+
+			// Update recent sessions
+			const courseName = courses.find((c) => c.id === selectedCourse)?.name || 'Unknown';
+			recentSessions = [
+				{
+					id: record.id,
+					course: courseName,
+					duration: formatTime(record.duration),
+					rating: record.effectiveness,
+					date: new Date(record.created).toISOString().split('T')[0],
+					notes: record.notes || ''
+				},
+				...recentSessions
+			];
+
+			recentSessions = recentSessions.slice(0, 4);
+
+			// Reset form
+			resetTimer();
+			selectedCourse = '';
+			effectivenessRating = 0;
+			notes = '';
+		} catch (error) {
+			console.error('Error submitting session:', error);
+			alert('Failed to log session. Please try again.');
+		}
 	}
 
 	onDestroy(() => {
@@ -115,7 +161,7 @@
 			<div class="col-left">
 				<div class="card timer-card">
 					<div class="timer-display">
-						<Clock size={42} color="teal"  />
+						<Clock size={42} color="teal" />
 						<span class="time">{formatTime(timerSeconds)}</span>
 					</div>
 
@@ -160,7 +206,7 @@
 							<!-- svelte-ignore a11y_label_has_associated_control -->
 							<label>Effectiveness Rating</label>
 							<div class="star-rating">
-								<StarRating bind:value={effectivenessRating} name="effectiveness" size={24} />
+								<StarRatings bind:value={effectivenessRating} name="effectiveness" size={24} />
 							</div>
 						</div>
 
@@ -199,7 +245,14 @@
 
 									<div class="session-details">
 										<div class="session-rating">
-											<StarRating value={session.rating} disabled={true} size={16} />
+											<Ratings
+												rating={session.rating}
+												size="28px"
+												activeColor="gold"
+												inactiveColor="#cccccc"
+											/>
+											<!-- Different max rating -->
+											<!-- <StarRating rating={8} maxRating={10} /> -->
 										</div>
 
 										<span class="session-date">{session.date}</span>
@@ -243,14 +296,6 @@
 
 	.container {
 		width: 100%;
-	}
-
-
-
-	.subtitle {
-		color: #666;
-		margin-bottom: 2rem;
-		font-size: 1.1rem;
 	}
 
 	h2 {
@@ -300,8 +345,6 @@
 		margin-bottom: 1.5rem;
 		gap: 0.8rem;
 	}
-
-	
 
 	.time {
 		font-size: 2.5rem;
@@ -362,11 +405,6 @@
 		background: rgba(106, 17, 203, 0.1);
 	}
 
-	/* Form */
-	.form-title {
-		margin-bottom: 1.5rem;
-	}
-
 	.form-group {
 		margin-bottom: 1.5rem;
 	}
@@ -404,18 +442,11 @@
 		gap: 0.5rem;
 	}
 
-	
 	.submit-btn {
 		width: 100%;
 		padding: 1rem;
 		font-size: 1.1rem;
 		margin-top: 0.5rem;
-	}
-
-	/* Recent sessions */
-	.sessions-title {
-		margin-bottom: 1.5rem;
-		color: black;
 	}
 
 	.session-item {
