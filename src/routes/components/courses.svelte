@@ -681,14 +681,14 @@
 							</div>
 
 							{#if activeCourse.topics && activeCourse.topics.length > 0}
-								<ul class="list-group mb-3">
+								<ul class="list-group mb-3 non-selectable">
 									{#each activeCourse.topics as topic, index (topic.id)}
 										<li
 											class="list-group-item d-flex justify-content-between align-items-center {topic.completed
 												? 'list-group-item-success'
 												: ''}"
 											style="cursor: grab;"
-											draggable="true"
+											draggable="false"
 											ondragstart={() => handleDragStart(topic)}
 											ondragover={handleDragOver}
 											ondrop={() => handleDrop(index)}
