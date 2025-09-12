@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import Chart from 'chart.js/auto';
 	import pb from '$lib';
+	import Study from './study.svelte';
 
 	let barChart;
 	let lineChart;
@@ -26,6 +27,8 @@
 	let studyEffectiveness = $state('No data');
 
 	let studyMinutes = $state('No data');
+
+	let studyDataCourses = $state({});
 
 	async function fetchSemester() {
 		const records = await pb.collection('semesters').getFullList({
@@ -64,7 +67,6 @@
 
 		const studyCount = records.length;
 
-
 		let totalEffectiveness = 0;
 
 		records.forEach((record) => {
@@ -72,7 +74,6 @@
 		});
 
 		let effectiveness = totalEffectiveness / studyCount;
-
 
 		studyEffectiveness = effectiveness.toFixed(1);
 	}
@@ -92,14 +93,77 @@
 
 		studyMinutes = minutes;
 	}
+	async function getStudyDataForBarChart() {
+		try {
+			// Fetch all courses
+			const courses = await pb.collection('courses').getFullList({
+				sort: 'name'
+			});
 
-	fetchSemester();
+			// Fetch all study sessions
+			const studySessions = await pb.collection('study_sessions').getFullList({
+				sort: 'start_time',
+				expand: 'course'
+			});
 
-	fetchExams();
+			// Aggregate study duration by course
+			const courseDurationMap = new Map();
 
-	fetchStudyEffectiveness();
+			// Initialize map with all courses (to include courses with zero duration)
+			courses.forEach((course) => {
+				courseDurationMap.set(course.id, {
+					courseName: course.name,
+					duration: 0
+				});
+			});
 
-	fetchStudyTime();
+			// Sum durations from study sessions
+			studySessions.forEach((session) => {
+				const courseId = session.course;
+				if (courseDurationMap.has(courseId)) {
+					courseDurationMap.get(courseId).duration += session.duration;
+				}
+			});
+
+			// Convert to array format suitable for bar chart
+			const chartData = {
+				labels: [], // Course names
+				datasets: [
+					{
+						label: 'Study Duration (hours)',
+						data: [], // Durations in hours
+						backgroundColor: 'rgba(75, 192, 192, 0.6)',
+						borderColor: 'rgba(75, 192, 192, 1)',
+						borderWidth: 1
+					}
+				]
+			};
+
+			// Populate chart data
+			courseDurationMap.forEach((value, key) => {
+				chartData.labels.push(value.courseName);
+				// Convert seconds to mins for better readability in chart
+				chartData.datasets[0].data.push(value.duration / 60);
+			});
+
+			return chartData;
+		} catch (error) {
+			console.error('Error fetching study data:', error);
+			throw error;
+		}
+	}
+
+	onMount(async () => {
+		fetchSemester();
+
+		fetchExams();
+
+		fetchStudyEffectiveness();
+
+		fetchStudyTime();
+
+		studyDataCourses = await getStudyDataForBarChart();
+	});
 
 	// Calculate progress for a semester
 	function calculateProgress(semester) {
@@ -286,7 +350,7 @@
 			<div class="stat-card" style="--accent-color: {colors.purple}">
 				<div class="stat-content">
 					<h2>Total Study Time</h2>
-					<p class="stat-value">{studyMinutes} Minutes</p>
+					<p class="stat-value">{studyMinutes} Mins</p>
 				</div>
 				<div class="stat-icon">
 					<Timer size={28} />
