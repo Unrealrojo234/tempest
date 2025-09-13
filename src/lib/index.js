@@ -1,7 +1,7 @@
 import PocketBase from 'pocketbase';
-import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
-const pbUrl = PUBLIC_POCKETBASE_URL || 'http://localhost:8090';
+const pbUrl = env.PUBLIC_POCKETBASE_URL || 'http://localhost:8090';
 
 const pb = new PocketBase(pbUrl);
 
