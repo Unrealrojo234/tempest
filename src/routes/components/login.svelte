@@ -2,6 +2,7 @@
 	import pb from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import Toast from '$lib/toast';
 
 	let email = '';
 	let password = '';
@@ -32,55 +33,60 @@
 					passwordConfirm: password
 				};
 				await pb.collection('users').create(userData);
+
+				Toast('success', 'Signed up Successfully');
+
 				// Log in after successful signup
 				const authData = await pb.collection('users').authWithPassword(email, password);
 				if (authData) {
-					goto('/dashboard'); // Redirect to dashboard or desired route
 				}
 			} else {
 				// Attempt login
 				const authData = await pb.collection('users').authWithPassword(email, password);
 				if (authData) {
-					goto('/dashboard'); // Redirect to dashboard or desired route
+					Toast('success', 'Successfully Logged In');
 				}
 			}
 		} catch (error) {
-			errorMessage = error.message || 'An error occurred. Please try again.';
+			Toast('error', error.message);
 		}
 	}
 </script>
 
-<h1 class="page-title text-center mt-3">Tempest Smart Study App</h1>
-<main class="container min-vh-100 d-flex align-items-center justify-content-center py-4">
-	<div class="row w-100 align-items-center">
-		<div class="col-12 col-md-6 d-flex justify-content-center">
-			{#if isLoading}
-				<p class="text-muted text-center small mb-2">Loading...</p>
-			{:else}
-				<form class="form" on:submit={handleSubmit}>
-					{#if errorMessage}
-						<p class="text-danger text-center small mb-2">{errorMessage}</p>
-					{/if}
-					<span class="input-span">
-						<label for="email" class="label">Email</label>
-						<input type="email" name="email" id="email" bind:value={email} required />
-					</span>
-					<span class="input-span">
-						<label for="password" class="label">Password</label>
-						<input type="password" name="password" id="password" bind:value={password} required />
-					</span>
-					<input class="submit" type="submit" value={isSignup ? 'Sign Up' : 'Log In'} />
-				</form>
-			{/if}
+<div id="cont">
+	<h1 class="page-title text-center mt-3">Tempest Smart Study App</h1>
+	<main class="container min-vh-100 d-flex align-items-center justify-content-center py-4">
+		<div class="row w-100 align-items-center">
+			<div class="col-12 col-md-6 d-flex justify-content-center">
+				{#if isLoading}
+					<p class="text-muted text-center small mb-2">Loading...</p>
+				{:else}
+					<form class="form" on:submit={handleSubmit}>
+						{#if errorMessage}
+							<p class="text-danger text-center small mb-2">{errorMessage}</p>
+						{/if}
+						<span class="input-span">
+							<label for="email" class="label">Email</label>
+							<input type="email" name="email" id="email" bind:value={email} required />
+						</span>
+						<span class="input-span">
+							<label for="password" class="label">Password</label>
+							<input type="password" name="password" id="password" bind:value={password} required />
+						</span>
+						<input class="submit" type="submit" value={isSignup ? 'Sign Up' : 'Log In'} />
+					</form>
+				{/if}
+			</div>
+			<div class="col-12 col-md-6 d-none d-md-block">
+				<img src="/rimuru.png" alt="Login Illustration" class="img-fluid bg-image" />
+			</div>
 		</div>
-		<div class="col-12 col-md-6 d-none d-md-block">
-			<img src="/rimuru.png" alt="Login Illustration" class="img-fluid bg-image" />
-		</div>
-	</div>
-</main>
+	</main>
+</div>
 
 <style>
 	/* From Uiverse.io by bociKond */
+
 	.form {
 		--bg-light: #efefef;
 		--bg-dark: #707070;

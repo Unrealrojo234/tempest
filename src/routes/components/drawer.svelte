@@ -5,6 +5,8 @@
 	import Study from './study.svelte';
 	import Dashboard from './dashboard.svelte';
 	import Exams from './exams.svelte';
+	import pb from '$lib';
+	import Toast from '$lib/toast';
 
 	import {
 		LayoutDashboard,
@@ -62,7 +64,9 @@
 	}
 
 	function handleLogout() {
-		console.log('Logout clicked');
+		pb.authStore.clear();
+
+		Toast('success', 'Successfully Logged Out');
 	}
 
 	function toggleDrawer() {
@@ -79,13 +83,13 @@
 				drawerOpen = true;
 			}
 		};
-		
+
 		// Initial check
 		checkMobile();
-		
+
 		// Add event listener
 		window.addEventListener('resize', checkMobile);
-		
+
 		// Cleanup
 		return () => {
 			window.removeEventListener('resize', checkMobile);
@@ -108,12 +112,17 @@
 
 		<!-- Drawer with fixed positioning -->
 		<div class="col-auto m-0 p-0">
-			<div id="drawer-div" class="card m-0" class:drawer-open={drawerOpen} class:drawer-closed={!drawerOpen}>
+			<div
+				id="drawer-div"
+				class="card m-0"
+				class:drawer-open={drawerOpen}
+				class:drawer-closed={!drawerOpen}
+			>
 				<div id="fixed">
 					<div class="logo-section">
 						<h2 class="app-title">StudyApp</h2>
 					</div>
-					
+
 					<!-- Scrollable navigation area -->
 					<nav class="navigation">
 						{#each tabs as tab}
@@ -140,8 +149,12 @@
 		</div>
 
 		<!-- Main content area -->
-		<div class="col m-0 " class:content-shifted={drawerOpen && !isMobile} class:content-full={!drawerOpen || isMobile}>
-			<div id="tabs"  class="m-0 p-0">
+		<div
+			class="col m-0"
+			class:content-shifted={drawerOpen && !isMobile}
+			class:content-full={!drawerOpen || isMobile}
+		>
+			<div id="tabs" class="m-0 p-0">
 				<div id="tab" class="p-3">
 					{#if activeTab === 0}
 						<Dashboard />
@@ -167,7 +180,7 @@
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<!-- svelte-ignore event_directive_deprecated -->
-			<div class="drawer-overlay" onclick={() => drawerOpen = false}></div>
+			<div class="drawer-overlay" onclick={() => (drawerOpen = false)}></div>
 		{/if}
 	</div>
 </main>
@@ -248,7 +261,7 @@
 		background-color: white;
 		border: none;
 		font-size: 1.8rem;
-		
+
 		width: 100%;
 		transition: all 0.2s ease;
 		color: var(--text, #333333);
@@ -274,7 +287,7 @@
 	.logout-section {
 		padding: 1rem;
 		position: absolute;
-		bottom: -.6%;
+		bottom: -0.6%;
 		width: 98%;
 		border-top: 1px solid #eee;
 	}
@@ -304,13 +317,17 @@
 	.content-shifted {
 		margin-left: 280px !important;
 		width: calc(100% - 280px) !important;
-		transition: margin-left 0.3s ease, width 0.3s ease;
+		transition:
+			margin-left 0.3s ease,
+			width 0.3s ease;
 	}
 
 	.content-full {
 		margin-left: 0 !important;
 		width: 100% !important;
-		transition: margin-left 0.3s ease, width 0.3s ease;
+		transition:
+			margin-left 0.3s ease,
+			width 0.3s ease;
 	}
 
 	#tabs {
@@ -356,11 +373,11 @@
 		#drawer-div {
 			width: 250px;
 		}
-		
+
 		.tab-name {
 			font-size: 1rem;
 		}
-		
+
 		.content-shifted {
 			margin-left: 0 !important;
 			width: 100% !important;
