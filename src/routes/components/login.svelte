@@ -12,11 +12,8 @@
 
 	onMount(async () => {
 		try {
-			// Check if any users exist in the 'users' collection
-			const { totalItems } = await pb.collection('users').getList(1, 1);
-			isSignup = totalItems === 0; // If no users, set to signup mode
+			isSignup = totalItems === 1;
 		} catch (error) {
-			errorMessage = 'Error checking user database. Please try again.';
 		} finally {
 			isLoading = false;
 		}
@@ -35,7 +32,7 @@
 				await pb.collection('users').create(userData);
 
 				Toast('success', 'Signed up Successfully');
-
+				location.reload(true);
 				// Log in after successful signup
 				const authData = await pb.collection('users').authWithPassword(email, password);
 				if (authData) {
