@@ -45,15 +45,22 @@
 	}
 
 	async function fetchSemester() {
-		const records = await pb.collection('semesters').getFullList({
-			sort: '-created'
-		});
+		const records = await pb.collection('semesters').getFullList(
+			{ requestKey: null },
+			{
+				sort: '-created'
+			}
+		);
 
 		records.forEach((record) => {
 			if (record.is_active) {
 				semester = record;
 			}
 		});
+
+		if (!semester) {
+			semester = records[0];
+		}
 	}
 
 	async function fetchExams() {
@@ -168,13 +175,13 @@
 	}
 
 	onMount(async () => {
-		fetchSemester();
+		await fetchSemester();
 
-		fetchExams();
+		await fetchExams();
 
-		fetchStudyEffectiveness();
+		await fetchStudyEffectiveness();
 
-		fetchStudyTime();
+		await fetchStudyTime();
 
 		// console.log(await fetchStudyData('weekly'));
 	});
@@ -190,6 +197,7 @@
 
 		const total = end - start;
 		const progress = today - start;
+
 		return Math.round((progress / total) * 100);
 	}
 
@@ -321,7 +329,7 @@
 			<div class="stat-card" style="--accent-color: {colors.teal}">
 				<div class="stat-content">
 					<h2>Semester Progress</h2>
-					<p class="stat-value">{calculateProgress(semester)}%</p>
+					<p class="stat-value">{calculateProgress(semester) || 0}%</p>
 				</div>
 				<div class="stat-icon">
 					<Loader size={28} />
@@ -341,7 +349,7 @@
 			<div class="stat-card" style="--accent-color: {colors.tealLight}">
 				<div class="stat-content">
 					<h2>Study Effectiveness</h2>
-					<p class="stat-value">{studyEffectiveness}</p>
+					<p class="stat-value">{studyEffectiveness || 0}</p>
 				</div>
 				<div class="stat-icon">
 					<Sparkles size={28} />

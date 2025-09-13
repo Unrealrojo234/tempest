@@ -1,29 +1,23 @@
-FROM node:20-alpine AS builder
+# Use Node.js LTS version
+FROM node:20-alpine
 
+# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci
+
+# Install dependencies
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the app
 RUN npm run build
-
-# Production stage
-FROM node:20-alpine AS production
-
-WORKDIR /app
-
-# Copy built application
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
 
 # Expose port
 EXPOSE 3000
 
-# Start the application
+# Start the app
 CMD ["node", "build"]
