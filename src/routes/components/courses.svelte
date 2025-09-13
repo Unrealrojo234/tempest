@@ -30,11 +30,9 @@
 			const active = semesters.find((s) => s.is_active) || semesters[0];
 			if (active) {
 				activeSemester = active;
-			}else{
-                Toast('info','Create Semesters First')
-            }
-
-
+			} else {
+				Toast('info', 'Create Semesters First');
+			}
 		} catch (error) {
 			Toast('error', 'Error fetching semesters.');
 		}

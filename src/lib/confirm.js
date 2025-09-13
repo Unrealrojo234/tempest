@@ -11,5 +11,4 @@ function Confirm(message) {
 	});
 }
 
-
 export default Confirm;

@@ -121,7 +121,7 @@
 
 	async function deleteSemester(id) {
 		Swal.fire({
-			text:'Are you sure you want to delete this semester? This action cannot be undone!',
+			text: 'Are you sure you want to delete this semester? This action cannot be undone!',
 			showDenyButton: true,
 			showConfirmButton: false,
 			showCancelButton: true,
@@ -381,7 +381,7 @@
 						<button type="submit" class="btn btn-teal">
 							{editingId ? 'Update' : 'Create'} Semester
 						</button>
-            &nbsp;&nbsp;&nbsp;
+						&nbsp;&nbsp;&nbsp;
 						<button type="button" class="btn btn-outline-secondary" on:click={resetForm}>
 							Cancel
 						</button>

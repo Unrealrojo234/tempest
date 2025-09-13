@@ -117,7 +117,7 @@
 				notes: notes
 			});
 
-			Toast('success','Session Successfully Recorded')
+			Toast('success', 'Session Successfully Recorded');
 
 			// Update recent sessions
 			const courseName = courses.find((c) => c.id === selectedCourse)?.name || 'Unknown';

@@ -7,28 +7,25 @@ function handleError(error, status = 500) {
 	return json({ error: error.message }, { status });
 }
 
-
 // Helper function to deactivate all semesters
 async function deactivateAllSemesters() {
-  try {
-    // Get all active semesters
-    const activeSemesters = await pb.collection('semesters').getFullList({
-      filter: 'is_active = true'
-    });
-    
-    // Deactivate each one
-    for (const semester of activeSemesters) {
-      await pb.collection('semesters').update(semester.id, {
-        is_active: false
-      });
-    }
-  } catch (error) {
-    console.error('Error deactivating semesters:', error);
-    throw error;
-  }
+	try {
+		// Get all active semesters
+		const activeSemesters = await pb.collection('semesters').getFullList({
+			filter: 'is_active = true'
+		});
+
+		// Deactivate each one
+		for (const semester of activeSemesters) {
+			await pb.collection('semesters').update(semester.id, {
+				is_active: false
+			});
+		}
+	} catch (error) {
+		console.error('Error deactivating semesters:', error);
+		throw error;
+	}
 }
-
-
 
 // GET: Fetch all semesters or a specific semester by ID
 export async function GET({ url }) {
@@ -76,10 +73,9 @@ export async function POST({ request }) {
 			completed: data.completed !== undefined ? data.completed : false
 		};
 
-
-        if(semesterData.is_active){
-            await deactivateAllSemesters();
-        }
+		if (semesterData.is_active) {
+			await deactivateAllSemesters();
+		}
 
 		const record = await pb.collection('semesters').create(semesterData);
 		return json(record, { status: 201 });
@@ -97,10 +93,9 @@ export async function PUT({ request }) {
 			return json({ error: 'ID is required for update' }, { status: 400 });
 		}
 
-
-        if(data.is_active){
-            await deactivateAllSemesters();
-        }
+		if (data.is_active) {
+			await deactivateAllSemesters();
+		}
 
 		const record = await pb.collection('semesters').update(data.id, data);
 		return json(record);
