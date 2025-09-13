@@ -28,7 +28,21 @@
 
 	let studyMinutes = $state('No data');
 
-	let studyDataCourses = $state({});
+	let studyData = $state({});
+
+	async function fetchStudyData(data) {
+		const request = await fetch(`/api/study_data/${data}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				accept: 'aplication/json'
+			}
+		});
+
+		const response = await request.json();
+
+		return response;
+	}
 
 	async function fetchSemester() {
 		const records = await pb.collection('semesters').getFullList({
@@ -162,7 +176,7 @@
 
 		fetchStudyTime();
 
-		studyDataCourses = await getStudyDataForBarChart();
+		// console.log(await fetchStudyData('weekly'));
 	});
 
 	// Calculate progress for a semester
@@ -179,27 +193,12 @@
 		return Math.round((progress / total) * 100);
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		// Bar Chart - Hours vs Units
 		if (barChartRef) {
 			barChart = new Chart(barChartRef, {
 				type: 'bar',
-				data: {
-					labels: ['Unit 1', 'Unit 2', 'Unit 3', 'Unit 4', 'Unit 5', 'Unit 6'],
-					datasets: [
-						{
-							label: 'Hours',
-							data: [8, 6, 9, 5, 7, 4],
-							backgroundColor: Array(6)
-								.fill(0)
-								.map((_, i) => `hsla(${194 + i * 10}, 70%, 60%, 0.7)`),
-							borderColor: colors.teal,
-							borderWidth: 1,
-							borderRadius: 4,
-							hoverBackgroundColor: colors.purpleLight
-						}
-					]
-				},
+				data: await fetchStudyData('courses'),
 				options: {
 					indexAxis: 'x',
 					responsive: true,
@@ -207,7 +206,7 @@
 					plugins: {
 						title: {
 							display: true,
-							text: 'Hours by Unit',
+							text: 'Minutes by Course',
 							color: colors.teal,
 							font: {
 								size: 16,
@@ -223,7 +222,7 @@
 							beginAtZero: true,
 							title: {
 								display: true,
-								text: 'Hours',
+								text: 'Course',
 								color: colors.teal
 							},
 							grid: {
@@ -233,7 +232,7 @@
 						y: {
 							title: {
 								display: true,
-								text: 'Units',
+								text: 'Minutes',
 								color: colors.teal
 							},
 							grid: {
@@ -249,32 +248,14 @@
 		if (lineChartRef) {
 			lineChart = new Chart(lineChartRef, {
 				type: 'line',
-				data: {
-					labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-					datasets: [
-						{
-							label: 'Hours',
-							data: [6, 8, 7, 9, 5, 4, 3],
-							fill: true,
-							backgroundColor: 'rgba(132, 94, 194, 0.2)',
-							borderColor: colors.purple,
-							borderWidth: 3,
-							tension: 0.4,
-							pointBackgroundColor: colors.purple,
-							pointBorderColor: '#fff',
-							pointRadius: 5,
-							pointHoverRadius: 7,
-							pointBorderWidth: 2
-						}
-					]
-				},
+				data: await fetchStudyData('weekly'),
 				options: {
 					responsive: true,
 					maintainAspectRatio: false,
 					plugins: {
 						title: {
 							display: true,
-							text: 'Weekly Hours Trend',
+							text: 'Weekly Minutes Trend',
 							color: colors.teal,
 							font: {
 								size: 16,
@@ -296,7 +277,7 @@
 							beginAtZero: true,
 							title: {
 								display: true,
-								text: 'Hours',
+								text: 'Minutes',
 								color: colors.teal
 							},
 							grid: {
@@ -350,7 +331,7 @@
 			<div class="stat-card" style="--accent-color: {colors.purple}">
 				<div class="stat-content">
 					<h2>Total Study Time</h2>
-					<p class="stat-value">{studyMinutes} Mins</p>
+					<p class="stat-value">{studyMinutes} <small>Mins</small></p>
 				</div>
 				<div class="stat-icon">
 					<Timer size={28} />
