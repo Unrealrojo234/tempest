@@ -1,13 +1,12 @@
 <script>
-    import Drawer from "./components/drawer.svelte";
+	import Drawer from './components/drawer.svelte';
+	import Login from './components/login.svelte';
 </script>
 
 <main>
-
-
-    <Drawer/>
+    <Login/>
+	<!-- <Drawer /> -->
 </main>
 
 <style>
-
 </style>
