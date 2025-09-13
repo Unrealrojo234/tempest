@@ -51,8 +51,11 @@
 </script>
 
 <div id="cont">
-	<h1 class="page-title text-center mt-3">Tempest Smart Study App</h1>
-	<main class="container min-vh-100 d-flex align-items-center justify-content-center py-4">
+	<h1 class="page-title text-center mt-3" style="font-size: 8rem;">Tempest Smart Study App</h1>
+	<main
+		class="container min-vh-100 d-flex align-items-center justify-content-center py-4"
+		style="overflow-y: hidden !important;"
+	>
 		<div class="row w-100 align-items-center">
 			<div class="col-12 col-md-6 d-flex justify-content-center">
 				{#if isLoading}
