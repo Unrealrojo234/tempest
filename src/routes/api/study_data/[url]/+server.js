@@ -15,7 +15,7 @@ async function getStudyDataForBarChart() {
 		const courseDurationMap = new Map();
 		courses.forEach((course) => {
 			courseDurationMap.set(course.id, {
-				courseName: course.name,
+				courseName: course.code,
 				duration: 0
 			});
 		});
@@ -83,7 +83,7 @@ async function getStudyDataForLineChart() {
 			labels: days.map((day) => new Date(day).toLocaleDateString('en-US', { weekday: 'short' })),
 			datasets: [
 				{
-					label: 'Study Minutes',
+					label: 'Study Hours',
 					data: days.map((day) => (durationByDay.get(day) || 0) / 60),
 					fill: true,
 					backgroundColor: 'rgba(132, 94, 194, 0.2)', // purple with opacity
