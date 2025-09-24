@@ -214,7 +214,7 @@
 					plugins: {
 						title: {
 							display: true,
-							text: 'Minutes by Course',
+							text: 'Hours by Course',
 							color: colors.teal,
 							font: {
 								size: 16,
@@ -240,7 +240,7 @@
 						y: {
 							title: {
 								display: true,
-								text: 'Minutes',
+								text: 'Hours',
 								color: colors.teal
 							},
 							grid: {
@@ -263,7 +263,7 @@
 					plugins: {
 						title: {
 							display: true,
-							text: 'Weekly Minutes Trend',
+							text: 'Weekly Hours Trend',
 							color: colors.teal,
 							font: {
 								size: 16,
@@ -285,7 +285,7 @@
 							beginAtZero: true,
 							title: {
 								display: true,
-								text: 'Minutes',
+								text: 'Hours',
 								color: colors.teal
 							},
 							grid: {
@@ -339,7 +339,7 @@
 			<div class="stat-card" style="--accent-color: {colors.purple}">
 				<div class="stat-content">
 					<h2>Total Study Time</h2>
-					<p class="stat-value">{studyMinutes} <small>Mins</small></p>
+					<p class="stat-value">{studyMinutes} <small>Hrs</small></p>
 				</div>
 				<div class="stat-icon">
 					<Timer size={28} />

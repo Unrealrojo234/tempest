@@ -111,7 +111,7 @@
 				body: JSON.stringify({
 					name: editingCourse.name,
 					description: editingCourse.description || '',
-					code: editingCourse.name.toLowerCase().replace(/\s+/g, '-'),
+					code: editingCourse.code,
 					semester: activeSemester.id
 				})
 			});
@@ -189,7 +189,7 @@
 					id: editingCourse.id,
 					name: editingCourse.name,
 					description: editingCourse.description,
-					code: editingCourse.code || editingCourse.name.toLowerCase().replace(/\s+/g, '-')
+					code: editingCourse.code
 				})
 			});
 
