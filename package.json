@@ -37,6 +37,7 @@
 		"@lucide/svelte": "^0.542.0",
 		"@sveltejs/adapter-auto": "^6.1.0",
 		"@sveltejs/adapter-node": "^5.3.2",
+		"@sveltejs/adapter-vercel": "^5.10.2",
 		"chart.js": "^4.5.0",
 		"pocketbase": "^0.26.2",
 		"svelte-star-rating": "^2.0.1"
